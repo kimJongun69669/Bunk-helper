@@ -12,8 +12,9 @@
 </head>
 <body>
     <h2>Bunk Calculator</h2>
-    <label>Total Classes: <input type="number" id="totalClasses"></label><br>
+    <label>Total Classes (Current): <input type="number" id="totalClasses"></label><br>
     <label>Attended Classes: <input type="number" id="attendedClasses"></label><br>
+    <label>Future Total Classes (Optional): <input type="number" id="futureClasses"></label><br>
     <button onclick="calculateBunks()">Calculate</button>
     <p id="result"></p>
 
@@ -21,13 +22,22 @@
         function calculateBunks() {
             let total = parseInt(document.getElementById("totalClasses").value);
             let attended = parseInt(document.getElementById("attendedClasses").value);
+            let futureTotal = parseInt(document.getElementById("futureClasses").value) || total; // Use future total if given
             let requiredAttendance = 75 / 100; // 75% required
+            
+            let currentAttendance = (attended / total) * 100;
             let maxBunkable = Math.floor((attended - (requiredAttendance * total)) / (1 - requiredAttendance));
 
-            if (maxBunkable >= 0) {
-                document.getElementById("result").innerHTML = `You can bunk ${maxBunkable} more classes.`;
+            let requiredAttendedFuture = Math.ceil(requiredAttendance * futureTotal);
+            let classesToAttend = Math.max(0, requiredAttendedFuture - attended);
+
+            if (currentAttendance >= 75) {
+                document.getElementById("result").innerHTML = `You can bunk ${maxBunkable} more classes.<br>
+                If total classes reach ${futureTotal}, you need to attend at least ${requiredAttendedFuture} classes (Attend ${classesToAttend} more).`;
             } else {
-                document.getElementById("result").innerHTML = `You need to attend more classes to maintain 75% attendance.`;
+                let requiredClasses = Math.ceil((requiredAttendance * total - attended) / (1 - requiredAttendance));
+                document.getElementById("result").innerHTML = `You need to attend ${requiredClasses} more classes to reach 75%.<br>
+                If total classes reach ${futureTotal}, you need to attend at least ${requiredAttendedFuture} classes (Attend ${classesToAttend} more).`;
             }
         }
     </script>
